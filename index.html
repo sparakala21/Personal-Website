@@ -94,6 +94,9 @@
       'Disaster': '#F03A36'
     };
 
+    // Update this to your deployed backend URL
+    const API_URL = 'https://your-app-name.herokuapp.com';
+
     function initGraph() {
       const container = document.getElementById('mountNode');
       const width = container.scrollWidth;
@@ -142,33 +145,63 @@
         }
       });
 
-      graph.data(data);
-      graph.render();
+      fetchPersons();
     }
 
-    function addPerson() {
+    async function fetchPersons() {
+      try {
+        const response = await axios.get(`${API_URL}/api/persons`);
+        data.nodes = response.data.map((person, index) => ({
+          id: `node_${person.id}`,
+          label: `${person.name}\n${person.mbti}`,
+          comboId: `combo_${person.id}`
+        }));
+        data.combos = response.data.map((person, index) => ({
+          id: `combo_${person.id}`,
+          label: person.mbti
+        }));
+        updateEdges();
+        graph.data(data);
+        graph.render();
+      } catch (error) {
+        console.error('Error fetching persons:', error);
+      }
+    }
+
+    async function addPerson() {
       const name = document.getElementById('nameInput').value;
-      const type = document.getElementById('typeInput').value;
-      if (!name || !type) {
+      const mbti = document.getElementById('typeInput').value;
+      if (!name || !mbti) {
         alert('Please enter both name and personality type');
         return;
       }
 
-      const newNode = {
-        id: `node_${data.nodes.length}`,
-        label: `${name}\n${type}`,
-        comboId: `combo_${data.nodes.length}`
-      };
-      data.nodes.push(newNode);
+      try {
+        const response = await axios.post(`${API_URL}/api/persons`, { name, mbti });
+        const newPerson = response.data;
 
-      const newCombo = {
-        id: `combo_${data.combos.length}`,
-        label: type
-      };
-      data.combos.push(newCombo);
+        const newNode = {
+          id: `node_${newPerson.id}`,
+          label: `${newPerson.name}\n${newPerson.mbti}`,
+          comboId: `combo_${newPerson.id}`
+        };
+        data.nodes.push(newNode);
 
-      updateEdges();
-      graph.changeData(data);
+        const newCombo = {
+          id: `combo_${newPerson.id}`,
+          label: newPerson.mbti
+        };
+        data.combos.push(newCombo);
+
+        updateEdges();
+        graph.changeData(data);
+
+        document.getElementById('nameInput').value = '';
+        document.getElementById('typeInput').value = '';
+      } catch (error) {
+        console.error('Error adding person:', error);
+        alert('Failed to add person. Please try again.');
+      }
     }
 
     function updateEdges() {
