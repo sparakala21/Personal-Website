@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+import sqlite3  # Add this import
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "https://sparakala21.github.io"}})
