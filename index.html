@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enneagram Results</title>
+  <title>MBTI Preferences</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,8 +14,8 @@
       margin: 20px;
     }
 
-    input,
-    select {
+    select,
+    button {
       margin-bottom: 10px;
       padding: 8px;
       width: 100%;
@@ -29,74 +29,110 @@
 </head>
 
 <body>
-  <h1>Enter Your Enneagram Result</h1>
-  <form id="enneagramForm">
+  <h1>Enter Your MBTI Preferences</h1>
+  <form id="mbtiForm">
     <label for="name">Name:</label>
     <input type="text" id="name" name="name" required>
 
-    <label for="enneagram">Enneagram Type:</label>
-    <select id="enneagram" name="enneagram" required>
-      <option value="" disabled selected>Select your type</option>
-      <option value="1">Type 1: Reformer</option>
-      <option value="2">Type 2: Helper</option>
-      <option value="3">Type 3: Achiever</option>
-      <option value="4">Type 4: Individualist</option>
-      <option value="5">Type 5: Investigator</option>
-      <option value="6">Type 6: Loyalist</option>
-      <option value="7">Type 7: Enthusiast</option>
-      <option value="8">Type 8: Challenger</option>
-      <option value="9">Type 9: Peacemaker</option>
+    <label for="extroversion">Extroversion (E) vs Introversion (I):</label>
+    <select id="extroversion" name="extroversion" required>
+      <option value="" disabled selected>Select your preference</option>
+      <option value="Extroversion">Extroversion (E)</option>
+      <option value="Introversion">Introversion (I)</option>
+    </select>
+
+    <label for="sensing">Sensing (S) vs Intuition (N):</label>
+    <select id="sensing" name="sensing" required>
+      <option value="" disabled selected>Select your preference</option>
+      <option value="Sensing">Sensing (S)</option>
+      <option value="Intuition">Intuition (N)</option>
+    </select>
+
+    <label for="thinking">Thinking (T) vs Feeling (F):</label>
+    <select id="thinking" name="thinking" required>
+      <option value="" disabled selected>Select your preference</option>
+      <option value="Thinking">Thinking (T)</option>
+      <option value="Feeling">Feeling (F)</option>
+    </select>
+
+    <label for="judging">Judging (J) vs Perceiving (P):</label>
+    <select id="judging" name="judging" required>
+      <option value="" disabled selected>Select your preference</option>
+      <option value="Judging">Judging (J)</option>
+      <option value="Perceiving">Perceiving (P)</option>
     </select>
 
     <button type="submit">Submit</button>
   </form>
 
   <div id="chart">
-    <canvas id="enneagramChart"></canvas>
+    <canvas id="mbtiChart"></canvas>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     // Load existing data from localStorage or initialize an empty array
-    let users = JSON.parse(localStorage.getItem('enneagramUsers')) || [];
+    let users = JSON.parse(localStorage.getItem('mbtiUsers')) || [];
 
-    document.getElementById('enneagramForm').addEventListener('submit', function (event) {
+    document.getElementById('mbtiForm').addEventListener('submit', function (event) {
       event.preventDefault();
 
       const name = document.getElementById('name').value;
-      const enneagram = document.getElementById('enneagram').value;
+      const extroversion = document.getElementById('extroversion').value;
+      const sensing = document.getElementById('sensing').value;
+      const thinking = document.getElementById('thinking').value;
+      const judging = document.getElementById('judging').value;
 
       // Add new user data to the array
-      users.push({ name, enneagram });
+      users.push({ name, extroversion, sensing, thinking, judging });
 
       // Save to localStorage
-      localStorage.setItem('enneagramUsers', JSON.stringify(users));
+      localStorage.setItem('mbtiUsers', JSON.stringify(users));
 
       // Display updated graph
       displayGraph(users);
     });
 
     function displayGraph(data) {
-      const ctx = document.getElementById('enneagramChart').getContext('2d');
+      const ctx = document.getElementById('mbtiChart').getContext('2d');
+
+      // Map each MBTI preference to a number for graphing
+      const labels = ['Extroversion/Introversion', 'Sensing/Intuition', 'Thinking/Feeling', 'Judging/Perceiving'];
+
+      const preferenceMapping = {
+        'Extroversion': 10,
+        'Introversion': 0,
+        'Sensing': 10,
+        'Intuition': 0,
+        'Thinking': 10,
+        'Feeling': 0,
+        'Judging': 10,
+        'Perceiving': 0
+      };
 
       // Generate dataset for radar chart
       const datasets = data.map(user => ({
         label: user.name,
-        data: Array(9).fill(0).map((_, i) => i + 1 === parseInt(user.enneagram) ? 10 : Math.random() * 5),
+        data: [
+          preferenceMapping[user.extroversion],
+          preferenceMapping[user.sensing],
+          preferenceMapping[user.thinking],
+          preferenceMapping[user.judging]
+        ],
         backgroundColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.2)`,
         borderColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 1)`,
         borderWidth: 1
       }));
 
       // Destroy previous chart instance if exists
-      if (window.myEnneagramChart) {
-        window.myEnneagramChart.destroy();
+      if (window.myMbtiChart) {
+        window.myMbtiChart.destroy();
       }
 
-      window.myEnneagramChart = new Chart(ctx, {
+      window.myMbtiChart = new Chart(ctx, {
         type: 'radar',
         data: {
-          labels: ['Reformer', 'Helper', 'Achiever', 'Individualist', 'Investigator', 'Loyalist', 'Enthusiast', 'Challenger', 'Peacemaker'],
+          labels: labels,
           datasets: datasets
         },
         options: {
