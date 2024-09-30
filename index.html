@@ -177,7 +177,7 @@
       }
 
       try {
-        const response = await axios.post(`$https://sravanparkalaa.pythonanywhere.com/api/persons`, { name, mbti });
+        const response = await axios.post(`https://sravanparkalaa.pythonanywhere.com/api/persons`, { name, mbti });
         const newPerson = response.data;
 
         const newNode = {

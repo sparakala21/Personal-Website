@@ -29,13 +29,21 @@ def get_persons():
 @app.route('/api/persons', methods=['POST'])
 def add_person():
     data = request.json
-    conn = sqlite3.connect('personalities.db')
-    c = conn.cursor()
-    c.execute("INSERT INTO personalities (name, mbti) VALUES (?, ?)",
-              (data['name'], data['mbti']))
-    conn.commit()
-    new_id = c.lastrowid
-    conn.close()
+    if not data or 'name' not in data or 'mbti' not in data:
+        return jsonify({'error': 'Invalid input'}), 400
+
+    try:
+        conn = sqlite3.connect('personalities.db')
+        c = conn.cursor()
+        c.execute("INSERT INTO personalities (name, mbti) VALUES (?, ?)",
+                  (data['name'], data['mbti']))
+        conn.commit()
+        new_id = c.lastrowid
+    except sqlite3.Error as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
     return jsonify({'id': new_id, 'name': data['name'], 'mbti': data['mbti']}), 201
 
 if __name__ == '__main__':
