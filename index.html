@@ -224,19 +224,20 @@
     function getCompatibility(type1, type2) {
       // This is a simplified compatibility check. In a real application,
       // you would have a more comprehensive compatibility matrix.
-      const compatibilityMatrix = {
-        'INTJ': { 'ENTP': 'Perfect', 'INFJ': 'Good', 'ISTJ': 'OK', 'ESFP': 'Disaster' },
-        'INTP': { 'ENTJ': 'Perfect', 'INFJ': 'Good', 'ISFJ': 'OK', 'ESFJ': 'Disaster' },
-        // ... add more compatibility data here
-      };
-
-      if (compatibilityMatrix[type1] && compatibilityMatrix[type1][type2]) {
-        return compatibilityMatrix[type1][type2];
-      } else if (compatibilityMatrix[type2] && compatibilityMatrix[type2][type1]) {
-        return compatibilityMatrix[type2][type1];
-      } else {
-        return 'Not Bad';
+      var count = 0;
+      for (let i = 0; i < type1.length; i++) {
+        if (type1[i] == type2[i]) {
+          count += 1;
+        }
       }
+      compatibilityMatrix = {
+        4: 'Perfect',
+        3: 'Good',
+        2: 'OK',
+        1: 'Not Bad',
+        0: 'Disaster'
+      }
+      return compatibilityMatrix[count];
     }
 
     function showCompatibility(label) {
